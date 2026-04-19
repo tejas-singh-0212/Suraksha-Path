@@ -1,5 +1,5 @@
 Team Members
-- Tejas SIngh
+- Tejas
 - Mayank
 - Priyal
 - Snavi
