@@ -18,6 +18,7 @@ function App() {
   const [endCoords, setEndCoords] = useState(null);
   const [showSOS, setShowSOS] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -35,6 +36,8 @@ function App() {
         const fetchedRoutes = await getRoutes(startFeature.center, endFeature.center);
         const analyzed = await analyzeRoutes(fetchedRoutes);
         setRoutes(analyzed);
+        // Close sidebar on mobile after search to show the map
+        if (window.innerWidth < 768) setIsSidebarOpen(false);
       }
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -61,10 +64,27 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-50 font-sans overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen bg-slate-950 text-slate-50 font-sans overflow-hidden">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between p-4 glass border-b border-white/10 z-30">
+        <div className="flex items-center gap-2">
+          <Shield className="text-primary w-6 h-6" />
+          <h1 className="text-lg font-bold tracking-tight">Suraksha Path</h1>
+        </div>
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+        >
+          <Search className="w-5 h-5 text-slate-400" />
+        </button>
+      </div>
+
       {/* Sidebar */}
-      <div className="w-96 flex flex-col glass border-r border-white/10 z-20 shadow-2xl">
-        <div className="p-6 border-b border-white/10">
+      <div className={cn(
+        "fixed inset-0 md:relative md:inset-auto w-full md:w-96 flex flex-col glass border-r border-white/10 z-40 transition-transform duration-300 ease-in-out shadow-2xl",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      )}>
+        <div className="p-6 border-b border-white/10 hidden md:block">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-2 bg-primary/20 rounded-lg">
               <Shield className="text-primary w-6 h-6" />
@@ -74,6 +94,14 @@ function App() {
           <p className="text-slate-400 text-sm">Prioritizing your safety, one route at a time.</p>
         </div>
 
+        {/* Mobile Close Button */}
+        <button 
+          onClick={() => setIsSidebarOpen(false)}
+          className="md:hidden absolute top-6 right-6 p-2 bg-white/5 rounded-full hover:bg-white/10"
+        >
+          <AlertCircle className="w-5 h-5 rotate-45" />
+        </button>
+
         <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           <form onSubmit={handleSearch} className="space-y-4 mb-8">
             <div className="relative">
@@ -81,7 +109,7 @@ function App() {
               <input
                 type="text"
                 placeholder="Current Location"
-                className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 outline-none transition-all text-sm"
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
               />
@@ -91,7 +119,7 @@ function App() {
               <input
                 type="text"
                 placeholder="Where to?"
-                className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 focus:ring-2 focus:ring-primary/50 outline-none transition-all text-sm"
                 value={end}
                 onChange={(e) => setEnd(e.target.value)}
               />
@@ -110,13 +138,14 @@ function App() {
               {routes.map((route, i) => (
                 <div 
                   key={i} 
+                  onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
                   className={cn(
                     "p-4 rounded-2xl border transition-all cursor-pointer group",
                     i === 0 ? "bg-primary/10 border-primary/30" : "bg-slate-900/30 border-white/5 hover:border-white/20"
                   )}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-sm font-medium">Route {i + 1} {i === 0 && "(Recommended)"}</span>
+                    <span className="text-sm font-medium">Route {i + 1} {i === 0 && "(Safest)"}</span>
                     <div className={cn(
                       "px-2 py-0.5 rounded text-[10px] font-bold",
                       route.safety_score > 80 ? "bg-safe/20 text-safe" : 
@@ -164,18 +193,28 @@ function App() {
       </div>
 
       {/* Map Area */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative h-full">
         <MapComponent routes={routes} start={startCoords} end={endCoords} />
         
+        {/* Mobile FAB to reopen search */}
+        {!isSidebarOpen && (
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="md:hidden absolute bottom-24 right-6 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl z-30"
+          >
+            <Search className="w-6 h-6" />
+          </button>
+        )}
+
         {/* SOS Overlay */}
         {showSOS && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-danger/40 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="bg-slate-900 p-8 rounded-3xl border-2 border-danger shadow-2xl text-center max-w-sm mx-4">
-              <div className="w-20 h-20 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <PhoneCall className="w-10 h-10 text-danger animate-bounce" />
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-danger/40 backdrop-blur-md animate-in fade-in duration-300 p-4">
+            <div className="bg-slate-900 p-6 md:p-8 rounded-3xl border-2 border-danger shadow-2xl text-center w-full max-w-sm">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <PhoneCall className="w-8 h-8 md:w-10 md:h-10 text-danger animate-bounce" />
               </div>
-              <h2 className="text-2xl font-bold mb-2 text-white">Emergency Alert!</h2>
-              <p className="text-slate-400 mb-6">Your current location has been sent to your emergency contacts and the nearest police station.</p>
+              <h2 className="text-xl md:text-2xl font-bold mb-2 text-white">Emergency Alert!</h2>
+              <p className="text-slate-400 text-sm md:text-base mb-6">Your current location has been sent to your emergency contacts and the nearest police station.</p>
               <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
                 <div className="h-full bg-danger animate-[shrink_5s_linear]"></div>
               </div>
@@ -193,5 +232,7 @@ function App() {
     </div>
   );
 }
+
+
 
 export default App;
