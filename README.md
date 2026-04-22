@@ -54,6 +54,22 @@ npm install
 npm run dev
 ```
 
+## Data Sources
+
+The safety dataset utilized in this project is carefully designed to reflect genuine urban environments across India.
+
+- **Data Composition**: The dataset is a combination of:
+  - Synthetic data generated based on real-world patterns.
+  - Information inspired by publicly available data sources.
+- **Realistic References**: The underlying assumptions are derived from realistic sources, including:
+  - **NCRB (National Crime Records Bureau)** reports.
+  - **data.gov.in** datasets.
+  - **OpenStreetMap (OSM)** for accurate geographic context.
+  - Urban infrastructure assumptions (e.g., lighting quality, police presence, and crowd density).
+- **Simulation & Future Scalability**: 
+  - Due to the lack of real-time APIs, the current data is simulated but strictly follows realistic statistical correlations.
+  - The system features a scalable architecture, designed to seamlessly integrate with real-time live APIs in the future.
+
 ## 👥 Team Members
 - **Tejas**
 - **Mayank**
