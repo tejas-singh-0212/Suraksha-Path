@@ -38,7 +38,13 @@ function App() {
       }
     } catch (error) {
       console.error("Error fetching routes:", error);
-      alert("Failed to fetch routes. Please check your connection or Mapbox token.");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        alert("API Key error: Please check if your LocationIQ token is correctly set in Vercel.");
+      } else if (error.code === 'ERR_NETWORK') {
+        alert("Backend error: Could not connect to the safety analysis server. Check VITE_BACKEND_URL.");
+      } else {
+        alert("An error occurred while fetching routes. Check console for details.");
+      }
     } finally {
       setLoading(false);
     }
