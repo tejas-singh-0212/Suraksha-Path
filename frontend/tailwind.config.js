@@ -6,13 +6,12 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        primary: "#6366f1",
-        secondary: "#a855f7",
-        danger: "#ef4444",
-        safe: "#22c55e",
-        warning: "#f59e0b",
-      }
+     colors: {
+  safe: '#10b981',    // emerald-500
+  warning: '#f59e0b', // amber-500
+  danger: '#ef4444',  // red-500
+  primary: '#10b981'  // Making primary the safe color
+}
     },
   },
   plugins: [],
