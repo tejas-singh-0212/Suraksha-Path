@@ -118,7 +118,7 @@ function MapComponent({ routes, start, end, selectedRouteIndex }) {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
-              <span className="text-xs text-slate-200 font-medium">> 80</span>
+              <span className="text-xs text-slate-200 font-medium"> 80</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-amber-500 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.8)]"></div>
@@ -126,7 +126,7 @@ function MapComponent({ routes, start, end, selectedRouteIndex }) {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)]"></div>
-              <span className="text-xs text-slate-200 font-medium">< 60</span>
+              <span className="text-xs text-slate-200 font-medium"> 60</span>
             </div>
           </div>
         </div>
