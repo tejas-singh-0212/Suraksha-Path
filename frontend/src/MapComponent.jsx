@@ -96,6 +96,8 @@ function MapComponent({ routes, start, end, selectedRouteIndex, userLocation, is
                   '#ef4444',
                 'line-width': 5,
                 'line-opacity': 1,
+                // Accessibility: Dashed lines for riskier routes
+                'line-dasharray': routes[selectedRouteIndex].safety_score < 60 ? [2, 2] : [1, 0]
               }}
             />
           </Source>

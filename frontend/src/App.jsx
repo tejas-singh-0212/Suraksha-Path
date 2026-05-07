@@ -293,14 +293,22 @@ function App() {
                       </div>
                       
                       {/* Safety Score Circle */}
-                      <div className="flex flex-col items-center">
+                      <div className="flex flex-col items-end">
                         <div className={cn(
-                          "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2",
+                          "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 mb-1",
                           route.safety_score > 80 ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10" : 
                           route.safety_score > 60 ? "border-amber-500/30 text-amber-400 bg-amber-500/10" : "border-red-500/30 text-red-400 bg-red-500/10"
                         )}>
                           {route.safety_score}
                         </div>
+                        <span className={cn(
+                          "text-[9px] font-bold uppercase tracking-tighter",
+                          route.safety_score > 80 ? "text-emerald-400" : 
+                          route.safety_score > 60 ? "text-amber-400" : "text-red-400"
+                        )}>
+                          {route.safety_score > 80 ? "Safest" : 
+                           route.safety_score > 60 ? "Moderate" : "High Risk"}
+                        </span>
                       </div>
                     </div>
 
