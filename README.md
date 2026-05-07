@@ -34,7 +34,7 @@ A one-tap emergency trigger designed to grab attention and broadcast data.
 The core of Suraksha Path is a spatial analysis engine built with **Python and SciPy**.
 
 ### **Technical Deep-Dive: KDTree Spatial Search**
-To ensure street-level accuracy without slowing down the UI, we implemented a **KDTree (k-dimensional tree)**. This allows the backend to perform lightning-fast nearest-neighbor lookups between the route's geometry points and our **2,000-point urban safety dataset**.
+To ensure street-level accuracy without slowing down the UI, we implemented a **KDTree (k-dimensional tree)**. This allows the backend to perform lightning-fast nearest-neighbor lookups between the route's geometry points and our **2,000-point urban safety dataset for Bengaluru**.
 
 ### **The Formula**
 Each point along a route is scored using the following weighted formula:
@@ -56,7 +56,7 @@ $$Safety Score = (Lighting \times 0.4) + (Police Proximity \times 0.3) + (Crowd 
 ```text
 /frontend      # React UI, Map Engine, Live Tracking Logic
 /backend       # Flask API, KDTree Spatial Search, Safety Data
-/data          # Realistic Urban Dataset (Delhi Cluster Model)
+/data          # Realistic Urban Dataset (Bengaluru Cluster Model)
 ```
 
 ---

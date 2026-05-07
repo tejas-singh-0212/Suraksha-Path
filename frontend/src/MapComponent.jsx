@@ -40,8 +40,8 @@ function MapComponent({ routes, start, end, selectedRouteIndex, userLocation, is
         ref={mapRef}
         mapLib={maplibregl}
         initialViewState={{
-          longitude: 77.2090, // Default to Delhi
-          latitude: 28.6139,
+          longitude: 77.5946, // Bengaluru
+          latitude: 12.9716,
           zoom: 12
         }}
         mapStyle={MAP_STYLE}
@@ -116,7 +116,7 @@ function MapComponent({ routes, start, end, selectedRouteIndex, userLocation, is
           <Marker longitude={end[0]} latitude={end[1]} anchor="bottom">
             <div className="flex flex-col items-center transform -translate-y-2 hover:scale-110 transition-transform cursor-pointer">
               <div className="bg-emerald-500 text-slate-950 px-3 py-1 rounded-full text-[10px] font-bold mb-1 shadow-[0_0_15px_rgba(16,185,129,0.4)]">DESTINATION</div>
-              <MapPin className="text-emerald-500 drop-shadow-lg" size={32} />
+              <MapPin className="text-emerald-500 drop-shadow-lg fill-emerald-500/20" size={32} />
             </div>
           </Marker>
         )}
