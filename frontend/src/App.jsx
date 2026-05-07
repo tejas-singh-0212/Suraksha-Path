@@ -23,6 +23,7 @@ function App() {
   const [locating, setLocating] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [toast, setToast] = useState(null);
   const watchId = React.useRef(null);
 
   // Feature: Get User's Current Location
@@ -135,7 +136,11 @@ function App() {
 
   const handleReport = () => {
     setReporting(true);
-    setTimeout(() => setReporting(false), 2000);
+    setToast("Incident reported at your location. Stay safe!");
+    setTimeout(() => {
+      setReporting(false);
+      setToast(null);
+    }, 4000);
   };
 
   return (
@@ -340,6 +345,39 @@ function App() {
           userLocation={userLocation}
           isNavigating={isNavigating}
         />
+
+        {/* Floating Report Button */}
+        <div className="absolute top-6 left-6 z-30">
+          <button 
+            onClick={handleReport}
+            disabled={reporting}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all shadow-2xl border backdrop-blur-xl",
+              reporting 
+                ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400" 
+                : "bg-slate-900/80 border-white/10 text-slate-200 hover:bg-slate-800 hover:border-white/20"
+            )}
+          >
+            {reporting ? (
+              <CheckCircle2 className="w-4 h-4 animate-in zoom-in duration-300" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+            )}
+            {reporting ? "Report Sent" : "Report Danger"}
+          </button>
+        </div>
+
+        {/* Success Toast */}
+        {toast && (
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="bg-slate-900/90 backdrop-blur-xl border border-emerald-500/30 px-6 py-3 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex items-center gap-3">
+              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              </div>
+              <p className="text-sm font-medium text-white">{toast}</p>
+            </div>
+          </div>
+        )}
         
         {/* Mobile FAB to reopen search */}
         {!isSidebarOpen && (
