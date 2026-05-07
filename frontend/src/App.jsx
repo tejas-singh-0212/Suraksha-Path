@@ -72,7 +72,17 @@ function App() {
       }
     } catch (error) {
       console.error("Error fetching routes:", error);
-      alert("An error occurred while fetching routes. Please try again.");
+      let errorMsg = "An error occurred while fetching routes. Please try again.";
+      if (error.response?.data?.error) {
+        errorMsg = error.response.data.error;
+      } else if (error.response?.data?.code === 'TooBig') {
+        errorMsg = "The route is too long. Please try closer locations.";
+      } else if (error.response?.data?.code === 'NoRoute') {
+        errorMsg = "No route found between these locations.";
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }

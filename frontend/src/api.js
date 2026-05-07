@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // LocationIQ is a great alternative for students - No credit card required!
 // Get your free key at: https://locationiq.com/
-const LOCATIONIQ_KEY = import.meta.env.VITE_LOCATIONIQ_TOKEN || 'pk.55c5c0d2a84a56a6953457198d017772'; // Fallback demo key (limited)
+const LOCATIONIQ_KEY = import.meta.env.VITE_LOCATIONIQ_TOKEN || 'pk.73c48041cd5104b45758de7e79eaf037'; // Fallback demo key (limited)
 
 const locationIqApi = axios.create({
   baseURL: 'https://us1.locationiq.com/v1',
@@ -27,8 +27,8 @@ export const getGeocoding = async (query) => {
 };
 
 export const getRoutes = async (startCoords, endCoords) => {
-  // LocationIQ Routing (Walking profile)
-  const response = await locationIqApi.get(`/directions/walking/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}`, {
+  // LocationIQ Routing (Driving profile)
+  const response = await locationIqApi.get(`/directions/driving/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}`, {
     params: {
       key: LOCATIONIQ_KEY,
       overview: 'full',
