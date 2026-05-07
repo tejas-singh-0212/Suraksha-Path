@@ -131,7 +131,33 @@ function App() {
 
   const handleSOS = () => {
     setShowSOS(true);
-    setTimeout(() => setShowSOS(false), 5000);
+    
+    // Play Siren Sound
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const playSiren = () => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.5);
+      osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 1);
+      
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 1);
+    };
+
+    const sirenInterval = setInterval(playSiren, 1000);
+    
+    setTimeout(() => {
+      setShowSOS(false);
+      clearInterval(sirenInterval);
+    }, 6000);
   };
 
   const handleReport = () => {
@@ -391,17 +417,46 @@ function App() {
 
         {/* SOS Overlay */}
         {showSOS && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-red-950/80 backdrop-blur-md animate-in fade-in duration-200 p-4">
-            <div className="bg-slate-950 p-8 rounded-[2rem] border border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.3)] text-center w-full max-w-sm relative overflow-hidden">
-              <div className="absolute inset-0 bg-red-500/5 animate-pulse"></div>
-              <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                <div className="absolute inset-0 border-4 border-red-500/30 rounded-full animate-ping"></div>
-                <PhoneCall className="w-10 h-10 text-red-500 animate-bounce relative z-10" />
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200 p-4">
+            {/* Police Light Flashers */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none animate-[police-flash_0.5s_infinite]"></div>
+            
+            <div className="bg-slate-950 p-10 rounded-[2.5rem] border-2 border-red-500 shadow-[0_0_80px_rgba(239,68,68,0.5)] text-center w-full max-w-md relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent"></div>
+              
+              <div className="w-28 h-28 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-8 relative">
+                <div className="absolute inset-0 border-8 border-red-500/30 rounded-full animate-ping"></div>
+                <div className="absolute inset-0 border-2 border-red-500 rounded-full animate-pulse"></div>
+                <PhoneCall className="w-12 h-12 text-red-500 animate-bounce relative z-10" />
               </div>
-              <h2 className="text-2xl font-bold mb-3 text-white relative z-10">Emergency Alert Sent</h2>
-              <p className="text-slate-400 text-sm mb-8 relative z-10">Your live location has been transmitted to local authorities and emergency contacts.</p>
+              
+              <h2 className="text-4xl font-black mb-4 text-white tracking-tighter uppercase italic relative z-10">SOS ACTIVE</h2>
+              <p className="text-red-400 font-bold text-lg mb-8 animate-pulse relative z-10 uppercase tracking-widest">Broadcasting Live Location...</p>
+              
+              <div className="space-y-4 relative z-10 text-left bg-white/5 p-4 rounded-2xl border border-white/10 mb-8">
+                <div className="flex items-center gap-3 text-slate-300 text-sm">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  Authorities Notified
+                </div>
+                <div className="flex items-center gap-3 text-slate-300 text-sm">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  Emergency Contacts Alerted
+                </div>
+                <div className="flex items-center gap-3 text-slate-300 text-sm">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  Siren Activated
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setShowSOS(false)}
+                className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl uppercase tracking-widest hover:bg-slate-200 transition-all mb-4 relative z-10"
+              >
+                Cancel Alert
+              </button>
+              
               <div className="h-1.5 bg-slate-900 rounded-full overflow-hidden relative z-10">
-                <div className="h-full bg-red-500 animate-[shrink_5s_linear]"></div>
+                <div className="h-full bg-red-500 animate-[shrink_6s_linear]"></div>
               </div>
             </div>
           </div>
@@ -412,6 +467,11 @@ function App() {
         @keyframes shrink {
           from { width: 100%; }
           to { width: 0%; }
+        }
+        @keyframes police-flash {
+          0% { background-color: #ff0000; }
+          50% { background-color: #0000ff; }
+          100% { background-color: #ff0000; }
         }
       `}</style>
     </div>
