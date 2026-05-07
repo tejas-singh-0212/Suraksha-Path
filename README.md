@@ -1,80 +1,92 @@
-# Suraksha Path - Women Safety Route Analyser 🛡️
+# Suraksha Path 🛡️
+### *Intelligent, Safety-First Urban Routing*
 
-**Suraksha Path** is a smart city navigation prototype designed to prioritize personal safety over travel speed. It evaluates multiple routes between a source and destination and assigns a dynamic "Safety Score" based on environmental, infrastructural, and historical data.
+**Suraksha Path** is a high-fidelity navigation prototype designed to prioritize personal safety over travel speed. Unlike traditional maps that optimize for the "Fastest Path," Suraksha Path analyzes urban infrastructure, historical data, and real-time environmental factors to guide users through the safest possible corridors.
 
-## 🚀 Key Features
+---
 
-- **Safety-First Navigation**: Fetches multiple walking routes and highlights the safest option in green, while riskier segments are shown in red/orange.
-- **Intelligent Scoring Engine**: A weighted algorithm calculating risk based on:
-  - **Street Lighting** (Infrastructural data)
-  - **Crime Rates** (Historical data)
-  - **Police Proximity** (Distance to nearest emergency services)
-- **Real-Time Tools**:
-  - **SOS Button**: Instant emergency simulation with location broadcasting.
-  - **Community Reporting**: "Report Unsafe Area" toggle for crowdsourced safety updates.
-- **Premium Interface**: A modern, dark-themed dashboard with glassmorphism aesthetics and smooth animations.
+## 🌟 Key Features
+
+### 1. **Safety-First Navigation Engine**
+Evaluates multiple routing alternatives using the LocationIQ API and re-ranks them based on a proprietary **Safety Index**.
+*   **Green Routes**: High safety (Well-lit, high police proximity).
+*   **Amber/Red Routes**: High risk (Isolated areas, poor lighting, or high crime history).
+
+### 2. **Live Tracking & "Auto-Follow" Mode**
+A premium navigation experience that uses the **Geolocation watchPosition API** to track your movement in real-time. The map auto-centers and follows your progress, showing a pulsing "Blue Dot" just like a commercial GPS.
+
+### 3. **AI-Driven Risk Factor Analysis**
+The backend analyzes your specific route geometry and identifies hyper-local dangers. It dynamically flags issues such as:
+*   ⚠️ **"Poor Lighting"**
+*   ⚠️ **"Isolated Area"**
+*   ⚠️ **"High Crime History"**
+
+### 4. **Intense Emergency SOS**
+A one-tap emergency trigger designed to grab attention and broadcast data.
+*   **Police Siren Audio**: Uses Web Audio API to generate a high-frequency siren.
+*   **Visual Alert**: High-intensity red/blue flashing lights to signal distress.
+*   **Automatic Logging**: Simulates broadcasting live GPS to authorities.
+
+---
+
+## 🧠 The "Safety Index" Algorithm
+
+The core of Suraksha Path is a spatial analysis engine built with **Python and SciPy**.
+
+### **Technical Deep-Dive: KDTree Spatial Search**
+To ensure street-level accuracy without slowing down the UI, we implemented a **KDTree (k-dimensional tree)**. This allows the backend to perform lightning-fast nearest-neighbor lookups between the route's geometry points and our **2,000-point urban safety dataset**.
+
+### **The Formula**
+Each point along a route is scored using the following weighted formula:
+$$Safety Score = (Lighting \times 0.4) + (Police Proximity \times 0.3) + (Crowd Density \times 0.2) - (Crime Weight \times 0.3)$$
+*The result is normalized to a 0-100 scale.*
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React.js (Vite), Tailwind CSS, MapLibre GL JS (Map Engine)
-- **Backend**: Python Flask, Pandas, SciPy (KDTree for spatial lookups)
-- **Data**: LocationIQ API (Geocoding & Routing), OpenFreeMap (Free Vector Tiles)
-- **Deployment**: Vercel (Serverless Functions)
+-   **Frontend**: React.js (Vite), MapLibre GL, Tailwind CSS, Lucide Icons.
+-   **Backend**: Flask (Python), Pandas, NumPy, SciPy (KDTree).
+-   **APIs**: LocationIQ (Directions & Geocoding), OpenFreeMap (Dark Mode Vector Tiles).
+
+---
 
 ## 📂 Project Structure
 
 ```text
-/frontend      # React source code & UI components
-/backend       # Flask API, Scoring Logic & Safety Data
+/frontend      # React UI, Map Engine, Live Tracking Logic
+/backend       # Flask API, KDTree Spatial Search, Safety Data
+/data          # Realistic Urban Dataset (Delhi Cluster Model)
 ```
+
+---
 
 ## ⚙️ Installation & Setup
 
-### Prerequisites
-- Node.js & npm
-- Python 3.8+
-
-### Step 1: Clone the Repository
+### **1. Clone & Install**
 ```bash
 git clone https://github.com/tejas-singh-0212/Suraksha-Path.git
 cd Suraksha-Path
 ```
 
-### Step 2: Backend Setup
+### **2. Launch Backend**
 ```bash
 cd backend
 pip install -r requirements.txt
 python app.py
 ```
 
-### Step 3: Frontend Setup
+### **3. Launch Frontend**
 ```bash
 cd ../frontend
 npm install
 npm run dev
 ```
 
-## Data Sources
-
-The safety dataset utilized in this project is carefully designed to reflect genuine urban environments across India.
-
-- **Data Composition**: The dataset is a combination of:
-  - Synthetic data generated based on real-world patterns.
-  - Information inspired by publicly available data sources.
-- **Realistic References**: The underlying assumptions are derived from realistic sources, including:
-  - **NCRB (National Crime Records Bureau)** reports.
-  - **data.gov.in** datasets.
-  - **OpenStreetMap (OSM)** for accurate geographic context.
-  - Urban infrastructure assumptions (e.g., lighting quality, police presence, and crowd density).
-- **Simulation & Future Scalability**: 
-  - Due to the lack of real-time APIs, the current data is simulated but strictly follows realistic statistical correlations.
-  - The system features a scalable architecture, designed to seamlessly integrate with real-time live APIs in the future.
+---
 
 ## 👥 Team Members
-- **Tejas**
-- **Mayank**
-- **Priyal**
-- **Snavi**
+- **Tejas** | **Mayank** | **Priyal** | **Snavi**
 
 ---
-*Developed for Hackathon 2026. Built with focus on accessibility and real-world safety impact.*
+*Developed for Hackathon 2026. Built with a focus on urban safety and high-performance spatial analysis.*
