@@ -21,6 +21,9 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0); // Track active route
   const [locating, setLocating] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const watchId = React.useRef(null);
 
   // Feature: Get User's Current Location
   const handleGetCurrentLocation = () => {
@@ -43,6 +46,43 @@ function App() {
       }
     );
   };
+
+  const toggleNavigation = () => {
+    if (isNavigating) {
+      if (watchId.current) {
+        navigator.geolocation.clearWatch(watchId.current);
+        watchId.current = null;
+      }
+      setIsNavigating(false);
+    } else {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser");
+        return;
+      }
+      
+      setIsNavigating(true);
+      watchId.current = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([longitude, latitude]);
+        },
+        (error) => {
+          console.error("Error watching location", error);
+          setIsNavigating(false);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (watchId.current) {
+        navigator.geolocation.clearWatch(watchId.current);
+      }
+    };
+  }, []);
+
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -268,11 +308,16 @@ function App() {
         <div className="p-5 bg-slate-950/80 border-t border-white/5 backdrop-blur-xl z-20">
           <div className="grid grid-cols-2 gap-3">
             <button 
-              onClick={handleReport}
-              className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-300 py-3 rounded-xl text-sm font-medium transition-all border border-white/10 hover:border-white/20"
+              onClick={toggleNavigation}
+              className={cn(
+                "flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all shadow-lg",
+                isNavigating 
+                  ? "bg-emerald-500 text-slate-950" 
+                  : "bg-slate-900 text-slate-300 border border-white/10 hover:border-white/20"
+              )}
             >
-              {reporting ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertCircle className="w-4 h-4 text-slate-400" />}
-              {reporting ? "Reported" : "Report Incident"}
+              <Navigation className={cn("w-4 h-4", isNavigating && "animate-pulse")} />
+              {isNavigating ? "STOP NAV" : "START NAV"}
             </button>
             <button 
               onClick={handleSOS}
@@ -292,6 +337,8 @@ function App() {
           start={startCoords} 
           end={endCoords} 
           selectedRouteIndex={selectedRouteIndex} 
+          userLocation={userLocation}
+          isNavigating={isNavigating}
         />
         
         {/* Mobile FAB to reopen search */}

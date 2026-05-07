@@ -6,11 +6,11 @@ import { MapPin } from 'lucide-react';
 
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/dark";
 
-function MapComponent({ routes, start, end, selectedRouteIndex }) {
+function MapComponent({ routes, start, end, selectedRouteIndex, userLocation, isNavigating }) {
   const mapRef = useRef();
 
   useEffect(() => {
-    if (routes.length > 0 && mapRef.current) {
+    if (routes.length > 0 && mapRef.current && !isNavigating) {
       const allCoords = routes.flatMap(r => r.geometry.coordinates);
       const bounds = allCoords.reduce((acc, coord) => {
         return [
@@ -21,7 +21,18 @@ function MapComponent({ routes, start, end, selectedRouteIndex }) {
 
       mapRef.current.fitBounds(bounds, { padding: 80, duration: 1500 });
     }
-  }, [routes]);
+  }, [routes, isNavigating]);
+
+  // Auto-follow user location when navigating
+  useEffect(() => {
+    if (isNavigating && userLocation && mapRef.current) {
+      mapRef.current.flyTo({
+        center: userLocation,
+        zoom: 16,
+        duration: 1000
+      });
+    }
+  }, [userLocation, isNavigating]);
 
   return (
     <div className="w-full h-full relative">
@@ -105,7 +116,17 @@ function MapComponent({ routes, start, end, selectedRouteIndex }) {
           <Marker longitude={end[0]} latitude={end[1]} anchor="bottom">
             <div className="flex flex-col items-center transform -translate-y-2 hover:scale-110 transition-transform cursor-pointer">
               <div className="bg-emerald-500 text-slate-950 px-3 py-1 rounded-full text-[10px] font-bold mb-1 shadow-[0_0_15px_rgba(16,185,129,0.4)]">DESTINATION</div>
-              <MapPin className="text-emerald-500 drop-shadow-lg" size={32} weight="fill" />
+              <MapPin className="text-emerald-500 drop-shadow-lg" size={32} />
+            </div>
+          </Marker>
+        )}
+
+        {/* User Location Marker (Blue Dot) */}
+        {userLocation && (
+          <Marker longitude={userLocation[0]} latitude={userLocation[1]} anchor="center">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute w-8 h-8 bg-blue-500 rounded-full opacity-25 animate-ping"></div>
+              <div className="relative w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg"></div>
             </div>
           </Marker>
         )}
