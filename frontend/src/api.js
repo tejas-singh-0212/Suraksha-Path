@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-// LocationIQ is a great alternative for students - No credit card required!
-// Get your free key at: https://locationiq.com/
-const LOCATIONIQ_KEY = import.meta.env.VITE_LOCATIONIQ_TOKEN || 'pk.73c48041cd5104b45758de7e79eaf037'; // Fallback demo key (limited)
+const LOCATIONIQ_KEY = import.meta.env.VITE_LOCATIONIQ_TOKEN || 'pk.73c48041cd5104b45758de7e79eaf037';
 
 const locationIqApi = axios.create({
   baseURL: 'https://us1.locationiq.com/v1',
@@ -31,10 +29,9 @@ export const getRoutes = async (startCoords, endCoords) => {
   const response = await locationIqApi.get(`/directions/driving/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}`, {
     params: {
       key: LOCATIONIQ_KEY,
-      overview: 'full',
+      overview: 'simplified',
       geometries: 'geojson',
       alternatives: 'true',
-      steps: 'true',
     }
   });
   return response.data.routes;
@@ -51,5 +48,3 @@ export const analyzeRoutes = async (routes) => {
     return routes; // Fallback to original routes if backend fails
   }
 };
-// hey here the code ends 
-// 
