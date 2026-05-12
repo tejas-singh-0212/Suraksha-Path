@@ -1,33 +1,25 @@
+import sqlite3
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
-from scipy.spatial import KDTree
 
 app = Flask(__name__)
 CORS(app)
 
-# Load safety data
-try:
-    safety_df = pd.read_csv('safety_data.csv')
-except FileNotFoundError:
-    # Fallback if file not found during dev
-    safety_df = pd.DataFrame(columns=['lat', 'lng', 'crime_weight', 'lighting_score', 'police_prox', 'crowd_density'])
+DB_PATH = 'safety.db'
 
-# Prepare KDTree for fast spatial lookup
-if not safety_df.empty:
-    coords = safety_df[['lat', 'lng']].values
-    tree = KDTree(coords)
-else:
-    tree = None
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def calculate_route_safety(coordinates):
     """
-    Calculates safety score and risk factors for a route geometry.
-    coordinates: List of [lng, lat] pairs from Mapbox
+    Calculates safety score and risk factors for a route geometry using SQLite.
     """
-    if tree is None or safety_df.empty:
-        return {"score": 75, "risk_factors": []} # Default if no data
+    conn = get_db_connection()
+    cursor = conn.cursor()
     
     scores = []
     lighting_scores = []
@@ -35,29 +27,42 @@ def calculate_route_safety(coordinates):
     police_proximities = []
     crowd_densities = []
     
-    # Mapbox coordinates are [lng, lat], our CSV is [lat, lng]
-    # We sample the route coordinates to speed up calculation
+    # Sample the route coordinates to speed up calculation
     sample_rate = max(1, len(coordinates) // 20)
     sampled_coords = coordinates[::sample_rate]
     
     for lng, lat in sampled_coords:
-        # Find nearest point in safety data
-        dist, idx = tree.query([lat, lng])
-        row = safety_df.iloc[idx]
+        # Bounding box query for nearest point (approx 1km)
+        # In a real nationwide app, this radius would be tuned
+        radius = 0.01 
+        query = """
+            SELECT *, 
+            ((lat - ?) * (lat - ?) + (lng - ?) * (lng - ?)) AS dist_sq
+            FROM safety_points
+            WHERE lat BETWEEN ? AND ?
+            AND lng BETWEEN ? AND ?
+            ORDER BY dist_sq ASC
+            LIMIT 1
+        """
+        cursor.execute(query, (lat, lat, lng, lng, lat - radius, lat + radius, lng - radius, lng + radius))
+        row = cursor.fetchone()
         
-        lighting_scores.append(row['lighting_score'])
-        crime_weights.append(row['crime_weight'])
-        police_proximities.append(row['police_prox'])
-        crowd_densities.append(row['crowd_density'])
-        
-        # Formula: Score = (Lighting * 0.4) + (Police_Prox * 0.3) - (Crime_Rate * 0.3)
-        # Normalizing to 0-100 scale: (S + 3) * 10
-        raw_score = (row['lighting_score'] * 0.4) + (row['police_prox'] * 0.3) - (row['crime_weight'] * 0.3)
-        normalized_score = (raw_score + 3) * 10
-        scores.append(normalized_score)
+        if row:
+            lighting_scores.append(row['lighting_score'])
+            crime_weights.append(row['crime_weight'])
+            police_proximities.append(row['police_prox'])
+            crowd_densities.append(row['crowd_density'])
+            
+            # Formula: Score = (Lighting * 0.4) + (Police_Prox * 0.3) - (Crime_Rate * 0.3)
+            # Normalizing to 0-100 scale: (S + 3) * 10
+            raw_score = (row['lighting_score'] * 0.4) + (row['police_prox'] * 0.3) - (row['crime_weight'] * 0.3)
+            normalized_score = (raw_score + 3) * 10
+            scores.append(normalized_score)
     
+    conn.close()
+
     if not scores:
-        return {"score": 75, "risk_factors": []}
+        return {"score": 75, "risk_factors": []} # Default if no data found
         
     avg_score = round(np.mean(scores), 2)
     avg_lighting = np.mean(lighting_scores)
